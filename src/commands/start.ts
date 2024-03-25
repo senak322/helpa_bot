@@ -1,8 +1,8 @@
 import { Telegraf, Context } from 'telegraf';
-import { Document } from 'mongoose';
-import { mainMenu } from "../keyboards/mainMenu.js";
-import { config } from "../utils/config.js";
-import { User, IUser } from "../models/User.js";
+// import { Document } from 'mongoose';
+import { mainMenu } from "../keyboards/mainMenu";
+import { config } from "../utils/config";
+import { User } from "../models/User";
 
 export const startCommand = (bot: Telegraf<Context>) => {
   bot.start(async (ctx) => {
