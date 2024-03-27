@@ -4,13 +4,8 @@ import dotenv from "dotenv";
 import LocalSession from "telegraf-session-local";
 import { startCommand } from "./commands/start";
 import { backToMainMenu } from "./middlewares/backToMainMenu";
-
-interface MySessionContext extends Context {
-  session?: {
-    state?: string;
-    // Другие свойства сессии
-  };
-}
+import { exchangeCommand } from "./commands/exchange";
+import { MySessionContext } from "./utils/types";
 
 dotenv.config();
 
@@ -35,5 +30,6 @@ bot.use(localSession.middleware());
 bot.use(backToMainMenu);
 
 startCommand(bot);
+exchangeCommand(bot);
 
 bot.launch();

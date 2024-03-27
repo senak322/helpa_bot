@@ -3,14 +3,14 @@ import crypto from "crypto";
 import { giveExchangeMenu } from "../keyboards/giveExchangeMenu";
 import { MySessionContext } from "../utils/types";
 
-interface IexchangeCommand {
-    () => void
-}
+// interface IexchangeCommand {
+//     () => void
+// }
 
-export const exchangeCommand: MySessionContext = (bot: Telegraf<Context>) => {
+export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
     bot.hears("💸 Новый обмен", (ctx) => {
+      console.log();
       
-  
       ctx.session = {};
       ctx.session.state = "selectingSendCurrency";
       
