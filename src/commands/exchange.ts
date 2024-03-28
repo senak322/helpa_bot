@@ -5,6 +5,8 @@ import { MySessionContext } from "../utils/types";
 import { sendWebMenu } from "../keyboards/sendWebMenu";
 import { config } from "../utils/config";
 
+const { usdtWebs, mainMenuBtn, backBtn } = config;
+
 export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
   bot.hears("💸 Купить HELPA", (ctx) => {
     ctx.session = {} as any;
@@ -23,7 +25,7 @@ export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
       let menu;
       switch (ctx.session.sendCurrency) {
         case "USDT💲":
-          menu = sendWebMenu(config.usdtWebs);
+          menu = sendWebMenu(usdtWebs);
           break;
       }
       // ctx.session.menuReceiveCurrency = menu;
@@ -34,27 +36,62 @@ export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
       );
     }
   });
-  bot.hears(config.usdtWebs, (ctx) => {
+  bot.hears(usdtWebs, (ctx) => {
     // Логика для выбора сети отправки
-    if (ctx.session.state === "selectingWebCurrency")
+    if (ctx.session.state === "selectingWebCurrency") {
       ctx.session.state = "enteringAmount";
-    ctx.session.sendWebCurrency = ctx.message.text;
+      ctx.session.sendWebCurrency = ctx.message.text;
 
-    // Логика для выбора суммы получения
-    let limitFrom = 0;
-    let limitTo = 0;
-    let currencyName = "";
+      // Логика для выбора суммы получения
+      let limitFrom = 0;
+      let limitTo = 0;
+      let currencyName = "";
 
-    switch (ctx.session.sendCurrency) {
-      case "USDT💲":
-        limitFrom = 100;
-        limitTo = 50000;
-        currencyName = "💲USDT";
+      switch (ctx.session.sendCurrency) {
+        case "USDT💲":
+          limitFrom = 100;
+          limitTo = 50000;
+          currencyName = "HELPA";
 
-        break;
+          break;
+      }
+      ctx.session.currencyName = currencyName;
+      ctx.session.limitFrom = limitFrom;
+      ctx.session.limitTo = limitTo;
+      ctx.reply(
+        `✍️ Напиши мне сумму, в ${ctx.session.sendCurrency} которую хочешь обменять от ${ctx.session.limitFrom} до ${ctx.session.limitTo} 
+Если тебе нужно получить конкретную сумму в ${ctx.session.currencyName} жми «Указать сумму в ${ctx.session.currencyName}»`,
+        Markup.keyboard([
+          [`Указать сумму в ${ctx.session.currencyName}`],
+          [mainMenuBtn, backBtn],
+        ]).resize()
+      );
     }
-    ctx.session.currencyName = currencyName;
-    ctx.session.limitFrom = limitFrom;
-    ctx.session.limitTo = limitTo;
   });
+  bot.on("text", async (ctx) => {
+    let limitToRecieve;
+    let limitFromRecieve;
+    if (ctx.session.state === "enteringAmount") {
+      const sendCurrency = ctx.session.sendCurrency;
+      const rate = await getExchangeRate(sendCurrency);
+      if (ctx.message.text === backBtn) {
+        // Пропускаем обработку, чтобы позволить middleware обработать это
+        return;
+      }
+      if (ctx.message.text === `Указать сумму в ${ctx.session.currencyName}`) {
+        // Логика переключения валюты
+        ctx.session.state = "enteringReceiveAmount";
+        
+      }
+    }
+  });
+};
+
+const getExchangeRate = async (value: string): Promise<number> => {
+  const res = 0;
+  if (value === "USDT💲") {
+    const res = await Promise.resolve(1000);
+    console.log(res);
+  }
+  return res;
 };
