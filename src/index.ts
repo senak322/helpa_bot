@@ -1,4 +1,4 @@
-import { Context, Telegraf } from "telegraf";
+import { Context, MiddlewareFn, Telegraf } from "telegraf";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import LocalSession from "telegraf-session-local";
@@ -18,13 +18,16 @@ const mongodbUri: string = process.env.MONGODB_URI!;
 
 const bot = new Telegraf<MySessionContext>(botToken, {});
 const localSession = new LocalSession({ database: ".session_db.json" });
+const adaptedLocalSessionMiddleware: MiddlewareFn<MySessionContext> = (ctx, next) => {
+  return localSession.middleware()(ctx as any, next);
+};
 
 mongoose
   .connect(mongodbUri)
   .then(() => console.log("MongoDB подключен"))
   .catch((e) => console.error("Ошибка подключения к MongoDB", e));
 
-bot.use(localSession.middleware());
+bot.use(adaptedLocalSessionMiddleware);
 
 // bot.use(backButton);
 bot.use(backToMainMenu);

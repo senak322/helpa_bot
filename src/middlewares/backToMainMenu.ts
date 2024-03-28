@@ -12,7 +12,7 @@ import { MySessionContext } from "../utils/types";
 
 export const backToMainMenu: MiddlewareFn<MySessionContext> = async (ctx, next) => {
   if ("text" in ctx.message && ctx.message.text === "📲 Главное меню") {
-    ctx.session = null;
+    ctx.session = {} as any;
     await ctx.reply(config.mainMessage, mainMenu);
   } else {
     return next();

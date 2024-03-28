@@ -3,8 +3,9 @@ import { Telegraf, Context } from 'telegraf';
 import { mainMenu } from "../keyboards/mainMenu";
 import { config } from "../utils/config";
 import { User } from "../models/User";
+import { MySessionContext } from '../utils/types';
 
-export const startCommand = (bot: Telegraf<Context>) => {
+export const startCommand = (bot: Telegraf<MySessionContext>) => {
   bot.start(async (ctx) => {
     const userId = ctx.from.id;
     let user = await User.findOne({ userId: userId });
