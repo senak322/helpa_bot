@@ -7,6 +7,7 @@ import { config } from "../utils/config";
 import { mainMenu } from "../keyboards/mainMenu";
 
 const { usdtWebs, mainMenuBtn, backBtn } = config;
+const exchangeRate = 0.0001;
 
 export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
   bot.hears("💸 Купить HELPA", (ctx) => {
@@ -50,7 +51,7 @@ export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
 
       switch (ctx.session.sendCurrency) {
         case "USDT💲":
-          limitFrom = 100;
+          limitFrom = 10;
           limitTo = 50000;
           currencyName = "HELPA";
 
@@ -85,7 +86,7 @@ export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
         ctx.session.state = "enteringReceiveAmount";
         if (ctx.session.currencyName === "HELPA") {
           limitFromRecieve = 100000;
-          limitToRecieve = 1000000;
+          limitToRecieve = 500000000;
         }
         ctx.session.limitFromRecieve = limitFromRecieve;
         ctx.session.limitToRecieve = limitToRecieve;
@@ -158,10 +159,11 @@ export const exchangeCommand = (bot: Telegraf<MySessionContext>) => {
 };
 
 const getExchangeRate = async (value: string): Promise<number> => {
-  const res = 0;
+  let res = 0;
   if (value === "USDT💲") {
-    const res = await Promise.resolve(1000);
-    console.log(res);
+    res = await Promise.resolve(exchangeRate);
+
+    // return res = rate;
   }
   return res;
 };
@@ -170,7 +172,7 @@ function isWithinLimits(amount: number, min: number, max: number) {
   return amount >= min && amount <= max;
 }
 
-async function getExchangeFormula(ctx, rate): Promise<number> {
+async function getExchangeFormula(ctx: any, rate: number): Promise<number> {
   let receiveSum = 0;
   if (0 >= ctx.session.amount) {
     ctx.reply(
@@ -184,16 +186,13 @@ async function getExchangeFormula(ctx, rate): Promise<number> {
           : ctx.session.limitToRecieve
       }`
     );
-    return;
+    return Promise.resolve(0); // Promise.resolve, чтобы вернуть число;
   }
 
   if (ctx.session.state === "enteringAmount") {
-    const initialReceiveSum = rate * ctx.message.text;
-    receiveSum = Math.floor(initialReceiveSum - initialReceiveSum * comission);
+    receiveSum = ctx.message.text / rate;
   } else if (ctx.session.state === "enteringReceiveAmount") {
-    const comissionRate = await howMuchComission(ctx, rate);
-    // Рассчитываем сумму к отправке с учетом комиссии
-    receiveSum = Math.floor(ctx.message.text / (rate * (1 - comissionRate)));
+    receiveSum = ctx.message.text * rate;
   }
   return receiveSum;
 }
@@ -208,19 +207,19 @@ const formatDate = (date: Date) => {
   });
 };
 
-const howMuchComission = async (ctx) => {
-  let comission = 0;
+// const howMuchComission = async (ctx) => {
+//   let comission = 0;
 
-  // const amount =
-  //   ctx.session.state === "enteringAmount"
-  //     ? ctx.message.text
-  //     : ctx.session.state === "enteringReceiveAmount"
-  //     ? ctx.message.text / rate
-  //     : 0;
+//   // const amount =
+//   //   ctx.session.state === "enteringAmount"
+//   //     ? ctx.message.text
+//   //     : ctx.session.state === "enteringReceiveAmount"
+//   //     ? ctx.message.text / rate
+//   //     : 0;
 
-  if (ctx.session.sendCurrency === "USDT💲") {
-    comission = 0.05;
-  }
+//   if (ctx.session.sendCurrency === "USDT💲") {
+//     comission = 0.05;
+//   }
 
-  return comission;
-};
+//   return comission;
+// };
